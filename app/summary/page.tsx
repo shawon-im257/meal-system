@@ -6,6 +6,7 @@ import Link from 'next/link';
 interface MemberSummary {
   id: number;
   name: string;
+  email?: string;
   meals: number;
   deposit: number;
   cost: number;
