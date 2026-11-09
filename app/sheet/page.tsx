@@ -10,10 +10,23 @@ interface MemberMealRow {
   totalMeals: number;
 }
 
+interface SheetResponse {
+  daysInMonth: number;
+  totalMeals: number;
+  totalExpenses: number;
+  mealRate: string;
+  matrix: MemberMealRow[];
+}
+
 export default function MealSheetPage() {
   const [selectedMonth, setSelectedMonth] = useState('');
   const [daysCount, setDaysCount] = useState(30);
   const [sheetData, setSheetData] = useState<MemberMealRow[]>([]);
+  const [meta, setMeta] = useState<{ totalMeals: number; totalExpenses: number; mealRate: string }>({
+    totalMeals: 0,
+    totalExpenses: 0,
+    mealRate: '0.00',
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,6 +45,11 @@ export default function MealSheetPage() {
           const json = await res.json();
           setDaysCount(json.daysInMonth || 30);
           setSheetData(json.matrix || []);
+          setMeta({
+            totalMeals: json.totalMeals || 0,
+            totalExpenses: json.totalExpenses || 0,
+            mealRate: json.mealRate || '0.00',
+          });
         }
       } catch (err) {
         console.error('Failed to load meal sheet', err);
@@ -92,6 +110,33 @@ export default function MealSheetPage() {
             >
               ড্যাশবোর্ড
             </Link>
+          </div>
+        </div>
+
+        {/* Quick Month Metrics Bar including Meal Rate */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-between">
+            <div>
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">এই মাসের মোট মিল</span>
+              <div className="text-2xl font-black text-white mt-0.5">{meta.totalMeals} টি</div>
+            </div>
+            <div className="text-2xl">🍲</div>
+          </div>
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-between">
+            <div>
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">এই মাসের মোট বাজার</span>
+              <div className="text-2xl font-black text-amber-400 mt-0.5">৳ {Number(meta.totalExpenses).toLocaleString('bn-BD')}</div>
+            </div>
+            <div className="text-2xl">💰</div>
+          </div>
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 backdrop-blur-md flex items-center justify-between shadow-lg shadow-purple-500/10">
+            <div>
+              <span className="text-xs text-purple-300 font-bold uppercase tracking-wider">চলতি মাসের মিল রেট</span>
+              <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300 mt-0.5">
+                ৳ {meta.mealRate}
+              </div>
+            </div>
+            <div className="text-3xl">⚡</div>
           </div>
         </div>
 

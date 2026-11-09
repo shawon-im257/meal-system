@@ -52,9 +52,30 @@ export async function GET(request: Request) {
       };
     });
 
+    // ৩. নির্বাচিত মাসের মোট মিল ও বাজার খরচ এনে মিল রেট হিসাব করা
+    const [totalMealRows]: any = await pool.query(
+      `SELECT COALESCE(SUM(lunch_count + dinner_count), 0) AS totalMeals 
+       FROM Meals 
+       WHERE DATE_FORMAT(meal_date, '%Y-%m') = ?`,
+      [selectedMonth]
+    );
+    const totalMealsAll = Number(totalMealRows[0]?.totalMeals || 0);
+
+    const [totalExpRows]: any = await pool.query(
+      `SELECT COALESCE(SUM(amount), 0) AS totalExpenses 
+       FROM Expenses 
+       WHERE DATE_FORMAT(expense_date, '%Y-%m') = ?`,
+      [selectedMonth]
+    );
+    const totalExpensesAll = Number(totalExpRows[0]?.totalExpenses || 0);
+    const mealRate = totalMealsAll > 0 ? (totalExpensesAll / totalMealsAll).toFixed(2) : '0.00';
+
     return NextResponse.json({
       selectedMonth,
       daysInMonth,
+      totalMeals: totalMealsAll,
+      totalExpenses: totalExpensesAll,
+      mealRate,
       matrix,
     });
   } catch (error) {
