@@ -1,69 +1,192 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
+interface DashboardStats {
+  totalMembers: number;
+  totalMeals: number;
+  totalExpenses: number;
+  mealRate: string;
+}
+
+export default function HomePage() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalMembers: 0,
+    totalMeals: 0,
+    totalExpenses: 0,
+    mealRate: '0.00',
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/dashboard');
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to load dashboard stats', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-slate-100 p-4 sm:p-8">
+      {/* Top Hero Section */}
+      <div className="max-w-6xl mx-auto mb-10">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600/30 via-purple-600/20 to-pink-600/30 backdrop-blur-xl border border-white/10 p-8 sm:p-12 shadow-2xl">
+          <div className="relative z-10 max-w-2xl">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 mb-4">
+              ✨ স্মার্ট মেস ম্যানেজমেন্ট ড্যাশবোর্ড
+            </span>
+            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+              খাবার ও খরচের হিসাব, <br className="hidden sm:inline" />
+              এখন আরও সহজ ও নির্ভুল
+            </h1>
+            <p className="mt-4 text-slate-300 text-base sm:text-lg">
+              দৈনিক মিল এন্ট্রি, বাজার খরচ এবং অটোমেটিক মিল রেট হিসাবের সমন্বিত সমাধান। 
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                href="/add-meal"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:scale-105 transition-all duration-200"
+              >
+                ➕ মিল এন্ট্রি করুন
+              </Link>
+              <Link
+                href="/add-expense"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold backdrop-blur-md border border-white/10 hover:scale-105 transition-all duration-200"
+              >
+                🛒 বাজার খরচ যোগ করুন
+              </Link>
+            </div>
+          </div>
+          {/* Background Decorative Circles */}
+          <div className="absolute -right-16 -top-16 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -right-8 -bottom-16 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      {/* Stats Cards Section */}
+      <div className="max-w-6xl mx-auto mb-12">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-wide flex items-center gap-2">
+            📊 বর্তমান পরিসংখ্যান
+          </h2>
+          <span className="text-xs text-slate-400">রিয়েল-টাইম ক্যালকুলেশন</span>
         </div>
-      </main>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Card 1: Total Members */}
+          <div className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/50 backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-blue-500/10">
+            <div className="flex justify-between items-start mb-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-2xl">
+                👥
+              </div>
+              <span className="text-xs px-2 py-1 rounded bg-blue-500/10 text-blue-300 font-mono">Users</span>
+            </div>
+            <div className="text-sm font-medium text-slate-400">মোট সদস্য</div>
+            <div className="text-3xl font-extrabold mt-1 text-white">
+              {loading ? '...' : `${stats.totalMembers} জন`}
+            </div>
+          </div>
+
+          {/* Card 2: Total Meals */}
+          <div className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/50 backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-emerald-500/10">
+            <div className="flex justify-between items-start mb-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-2xl">
+                🍲
+              </div>
+              <span className="text-xs px-2 py-1 rounded bg-emerald-500/10 text-emerald-300 font-mono">Meals</span>
+            </div>
+            <div className="text-sm font-medium text-slate-400">মোট গৃহীত মিল</div>
+            <div className="text-3xl font-extrabold mt-1 text-white">
+              {loading ? '...' : `${stats.totalMeals} টি`}
+            </div>
+          </div>
+
+          {/* Card 3: Total Expenses */}
+          <div className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-500/50 backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-amber-500/10">
+            <div className="flex justify-between items-start mb-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-2xl">
+                💰
+              </div>
+              <span className="text-xs px-2 py-1 rounded bg-amber-500/10 text-amber-300 font-mono">Expenses</span>
+            </div>
+            <div className="text-sm font-medium text-slate-400">মোট বাজার খরচ</div>
+            <div className="text-3xl font-extrabold mt-1 text-white">
+              {loading ? '...' : `৳ ${Number(stats.totalExpenses).toLocaleString('bn-BD')}`}
+            </div>
+          </div>
+
+          {/* Card 4: Current Meal Rate */}
+          <div className="group relative p-6 rounded-2xl bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-pink-500/20 border border-purple-400/30 hover:border-purple-400 backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-purple-500/20">
+            <div className="flex justify-between items-start mb-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/30 border border-purple-400/40 flex items-center justify-center text-2xl">
+                ⚡
+              </div>
+              <span className="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-200 font-mono">Rate</span>
+            </div>
+            <div className="text-sm font-medium text-purple-200">বর্তমান মিল রেট</div>
+            <div className="text-3xl font-black mt-1 text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300">
+              {loading ? '...' : `৳ ${stats.mealRate}`}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Navigation Cards */}
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-xl sm:text-2xl font-bold tracking-wide mb-6 flex items-center gap-2">
+          ⚡ কুইক অ্যাকশন
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            href="/add-meal"
+            className="group block p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-400/50 hover:bg-white/[0.08] transition duration-200"
+          >
+            <div className="text-3xl mb-3">📝</div>
+            <h3 className="text-lg font-semibold group-hover:text-blue-400 transition">
+              দৈনিক মিল এন্ট্রি
+            </h3>
+            <p className="text-sm text-slate-400 mt-1">
+              যেকোনো মেম্বারের জন্য দুপুরের বা রাতের মিল যোগ করুন বা আপডেট করুন।
+            </p>
+          </Link>
+
+          <Link
+            href="/add-expense"
+            className="group block p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-400/50 hover:bg-white/[0.08] transition duration-200"
+          >
+            <div className="text-3xl mb-3">🛍️</div>
+            <h3 className="text-lg font-semibold group-hover:text-amber-400 transition">
+              বাজার খরচের এন্ট্রি
+            </h3>
+            <p className="text-sm text-slate-400 mt-1">
+              আজকের মেসের বাজার কত টাকা হলো এবং কে বাজার করেছে তা রেকর্ড রাখুন।
+            </p>
+          </Link>
+
+          <Link
+            href="/summary"
+            className="group block p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-400/50 hover:bg-white/[0.08] transition duration-200"
+          >
+            <div className="text-3xl mb-3">📑</div>
+            <h3 className="text-lg font-semibold group-hover:text-purple-400 transition">
+              মাসিক সামারি ও মেস হিসাব
+            </h3>
+            <p className="text-sm text-slate-400 mt-1">
+              কে কত টাকা জমা দিয়েছে এবং কার কত টাকা ফেরত পাবে বা বকেয়া আছে তা দেখুন।
+            </p>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
