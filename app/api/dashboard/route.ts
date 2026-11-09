@@ -38,8 +38,31 @@ export async function GET() {
         total: Number(r.total),
       }));
     } catch (e) {
-      // যদি ক্যাটাগরি কলাম না থাকে
       categoryBreakdown = [];
+    }
+
+    // ৬. কে কত টাকা বাজার করেছে (Member-wise Expense List)
+    let memberExpenses: any[] = [];
+    try {
+      const [memberExpRows]: any = await pool.query(`
+        SELECT 
+          u.id,
+          u.name,
+          COALESCE(SUM(e.amount), 0) as totalExpense,
+          COUNT(e.id) as expenseCount
+        FROM Users u
+        JOIN Expenses e ON u.id = e.user_id
+        GROUP BY u.id, u.name
+        ORDER BY totalExpense DESC
+      `);
+      memberExpenses = memberExpRows.map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        totalExpense: Number(r.totalExpense),
+        expenseCount: Number(r.expenseCount),
+      }));
+    } catch (e) {
+      memberExpenses = [];
     }
 
     return NextResponse.json(
@@ -49,6 +72,7 @@ export async function GET() {
         totalExpenses,
         mealRate,
         categoryBreakdown,
+        memberExpenses,
       },
       { status: 200 }
     );

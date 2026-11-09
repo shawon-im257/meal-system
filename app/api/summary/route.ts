@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     // ৩. নির্বাচিত মাসের মিল রেট
     const mealRate = totalMeals > 0 ? totalExpenses / totalMeals : 0;
 
-    // ৪. নির্বাচিত মাসে মেম্বারভিত্তিক মিল হিসাব
+    // ৪. নির্বাচিত মাসে মেম্বারভিত্তিক মিল ও বাজার খরচের হিসাব
     const [members]: any = await pool.query(
       `
       SELECT 
@@ -41,24 +41,33 @@ export async function GET(request: Request) {
            FROM Meals m 
            WHERE m.user_id = u.id AND DATE_FORMAT(m.meal_date, '%Y-%m') = ?), 
           0
-        ) AS memberMeals
+        ) AS memberMeals,
+        COALESCE(
+          (SELECT SUM(e.amount) 
+           FROM Expenses e 
+           WHERE e.user_id = u.id AND DATE_FORMAT(e.expense_date, '%Y-%m') = ?), 
+          0
+        ) AS memberExpense
       FROM Users u
       ORDER BY u.name ASC
       `,
-      [selectedMonth]
+      [selectedMonth, selectedMonth]
     );
 
     const summary = members.map((member: any) => {
       const meals = Number(member.memberMeals || 0);
       const deposit = Number(member.totalDeposit || 0);
+      const expense = Number(member.memberExpense || 0);
       const cost = Number((meals * mealRate).toFixed(2));
       const balance = Number((deposit - cost).toFixed(2));
 
       return {
         id: member.id,
         name: member.name,
+        email: member.email,
         meals,
         deposit,
+        expense,
         cost,
         balance,
       };

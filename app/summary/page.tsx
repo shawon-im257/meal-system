@@ -9,6 +9,7 @@ interface MemberSummary {
   email?: string;
   meals: number;
   deposit: number;
+  expense: number;
   cost: number;
   balance: number;
 }
@@ -159,8 +160,9 @@ export default function SummaryPage() {
                   <tr>
                     <th className="py-4 px-6">মেম্বার</th>
                     <th className="py-4 px-6 text-center">মিলের সংখ্যা</th>
+                    <th className="py-4 px-6 text-right">বাজার খরচ (৳)</th>
                     <th className="py-4 px-6 text-right">মোট জমা (৳)</th>
-                    <th className="py-4 px-6 text-right">মিলের মোট খরচ (৳)</th>
+                    <th className="py-4 px-6 text-right">মিলের খরচ (৳)</th>
                     <th className="py-4 px-6 text-right">ব্যালান্স অবস্থা</th>
                   </tr>
                 </thead>
@@ -180,6 +182,9 @@ export default function SummaryPage() {
                         </td>
                         <td className="py-4 px-6 text-center font-mono text-slate-300 font-bold">
                           {m.meals}
+                        </td>
+                        <td className="py-4 px-6 text-right font-mono text-amber-400 font-semibold">
+                          ৳ {(m.expense || 0).toFixed(2)}
                         </td>
                         <td className="py-4 px-6 text-right font-mono text-emerald-400 font-semibold">
                           ৳ {m.deposit.toFixed(2)}

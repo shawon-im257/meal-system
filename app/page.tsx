@@ -8,12 +8,20 @@ interface CategoryCost {
   total: number;
 }
 
+interface MemberExpense {
+  id: number;
+  name: string;
+  totalExpense: number;
+  expenseCount: number;
+}
+
 interface DashboardStats {
   totalMembers: number;
   totalMeals: number;
   totalExpenses: number;
   mealRate: string;
   categoryBreakdown?: CategoryCost[];
+  memberExpenses?: MemberExpense[];
 }
 
 export default function HomePage() {
@@ -150,7 +158,7 @@ export default function HomePage() {
 
       {/* Expense Category Breakdown Section */}
       {stats.categoryBreakdown && stats.categoryBreakdown.length > 0 && (
-        <div className="max-w-6xl mx-auto mb-12">
+        <div className="max-w-6xl mx-auto mb-8">
           <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               🏷️ বাজারের খাত অনুযায়ী খরচ বণ্টন (Category Breakdown)
@@ -176,6 +184,46 @@ export default function HomePage() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Member-wise Expense List (কে কত টাকা বাজার করেছে) */}
+      {stats.memberExpenses && stats.memberExpenses.length > 0 && (
+        <div className="max-w-6xl mx-auto mb-12">
+          <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                🛒 কে কত টাকা বাজার করেছে (সদস্যভিত্তিক বাজারের হিসাব)
+              </h3>
+              <Link href="/add-expense" className="text-xs text-amber-400 hover:underline">
+                + নতুন বাজার যোগ করুন
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {stats.memberExpenses.map((m) => (
+                <div
+                  key={m.id}
+                  className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] transition"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center font-bold text-sm">
+                      {m.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white">{m.name}</div>
+                      <div className="text-xs text-slate-400">মোট {m.expenseCount} বার বাজার করেছে</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-base font-bold text-amber-400 font-mono">
+                      ৳ {m.totalExpense.toLocaleString('bn-BD')}
+                    </div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">মোট খরচ</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
