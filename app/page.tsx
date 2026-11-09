@@ -3,11 +3,17 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+interface CategoryCost {
+  category: string;
+  total: number;
+}
+
 interface DashboardStats {
   totalMembers: number;
   totalMeals: number;
   totalExpenses: number;
   mealRate: string;
+  categoryBreakdown?: CategoryCost[];
 }
 
 export default function HomePage() {
@@ -16,6 +22,7 @@ export default function HomePage() {
     totalMeals: 0,
     totalExpenses: 0,
     mealRate: '0.00',
+    categoryBreakdown: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -141,12 +148,58 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Expense Category Breakdown Section */}
+      {stats.categoryBreakdown && stats.categoryBreakdown.length > 0 && (
+        <div className="max-w-6xl mx-auto mb-12">
+          <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              🏷️ বাজারের খাত অনুযায়ী খরচ বণ্টন (Category Breakdown)
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {stats.categoryBreakdown.map((cat, idx) => {
+                const percentage = stats.totalExpenses > 0 ? ((cat.total / stats.totalExpenses) * 100).toFixed(1) : '0';
+                return (
+                  <div key={idx} className="p-4 rounded-xl bg-white/5 border border-white/5">
+                    <div className="flex justify-between text-xs text-slate-400 mb-1">
+                      <span>{cat.category}</span>
+                      <span className="font-mono text-amber-300">{percentage}%</span>
+                    </div>
+                    <div className="text-lg font-bold text-white font-mono">
+                      ৳ {cat.total.toLocaleString('bn-BD')}
+                    </div>
+                    <div className="w-full bg-white/10 h-1.5 rounded-full mt-2 overflow-hidden">
+                      <div
+                        className="bg-amber-400 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Quick Navigation Cards */}
       <div className="max-w-6xl mx-auto">
         <h2 className="text-xl sm:text-2xl font-bold tracking-wide mb-6 flex items-center gap-2">
           ⚡ কুইক অ্যাকশন
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Link
+            href="/sheet"
+            className="group block p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-teal-400/50 hover:bg-white/[0.08] transition duration-200"
+          >
+            <div className="text-3xl mb-3">📅</div>
+            <h3 className="text-lg font-semibold group-hover:text-teal-400 transition">
+              ডিজিটাল মিল খাতা
+            </h3>
+            <p className="text-sm text-slate-400 mt-1">
+              ১ থেকে ৩১ তারিখ পর্যন্ত সম্পূর্ণ মাসের দৈনিক মিলের গ্রিড শিট দেখুন।
+            </p>
+          </Link>
+
           <Link
             href="/add-meal"
             className="group block p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-400/50 hover:bg-white/[0.08] transition duration-200"
@@ -156,7 +209,7 @@ export default function HomePage() {
               দৈনিক মিল এন্ট্রি
             </h3>
             <p className="text-sm text-slate-400 mt-1">
-              যেকোনো মেম্বারের জন্য দুপুরের বা রাতের মিল যোগ করুন বা আপডেট করুন।
+              তারিখ অনুযায়ী মেম্বারের দুপুরের বা রাতের মিল যোগ করুন বা আপডেট করুন।
             </p>
           </Link>
 
@@ -169,7 +222,7 @@ export default function HomePage() {
               বাজার খরচের এন্ট্রি
             </h3>
             <p className="text-sm text-slate-400 mt-1">
-              আজকের মেসের বাজার কত টাকা হলো এবং কে বাজার করেছে তা রেকর্ড রাখুন।
+              আজকের মেসের বাজার কত টাকা হলো এবং কোন খাতে খরচ হলো তা রেকর্ড রাখুন।
             </p>
           </Link>
 
@@ -179,7 +232,7 @@ export default function HomePage() {
           >
             <div className="text-3xl mb-3">📑</div>
             <h3 className="text-lg font-semibold group-hover:text-purple-400 transition">
-              মাসিক সামারি ও মেস হিসাব
+              মাসিক মেস হিসাব
             </h3>
             <p className="text-sm text-slate-400 mt-1">
               কে কত টাকা জমা দিয়েছে এবং কার কত টাকা ফেরত পাবে বা বকেয়া আছে তা দেখুন।

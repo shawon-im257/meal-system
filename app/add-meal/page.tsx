@@ -9,10 +9,10 @@ interface MemberOption {
 }
 
 export default function AddMeal() {
+  const [date, setDate] = useState('');
   const [name, setName] = useState('');
   const [lunch, setLunch] = useState('');
   const [dinner, setDinner] = useState('');
-  const [date, setDate] = useState('');
   const [members, setMembers] = useState<MemberOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -83,7 +83,7 @@ export default function AddMeal() {
             মেম্বারের মিল যোগ করুন
           </h1>
           <p className="text-sm text-slate-400 mb-6">
-            বিদ্যমান মেম্বার সিলেক্ট করুন অথবা নতুন নাম লিখে মিল সংখ্যা ইনপুট দিন।
+            তারিখ নির্ধারণ করে মেম্বারের দুপুরের ও রাতের মিল কাউন্ট সংরক্ষণ করুন।
           </p>
 
           {message && (
@@ -99,12 +99,26 @@ export default function AddMeal() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* ১. সবার প্রথমে তারিখ */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                মেম্বার নির্বাচন করুন বা নাম লিখুন <span className="text-blue-400">*</span>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                <span>📅</span> মিলের তারিখ <span className="text-blue-400">*</span>
+              </label>
+              <input
+                type="date"
+                required
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition [color-scheme:dark] text-sm"
+              />
+            </div>
+
+            {/* ২. এরপর মেম্বার নির্বাচন */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                <span>👤</span> মেম্বার নির্বাচন করুন বা নাম লিখুন <span className="text-blue-400">*</span>
               </label>
               
-              {/* মেম্বার সিলেক্ট করার ড্রপডাউন (যদি মেম্বার থাকে) */}
               {members.length > 0 && (
                 <div className="mb-2">
                   <select
@@ -129,14 +143,15 @@ export default function AddMeal() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="অথবা এখানে মেম্বারের নাম লিখুন"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition text-sm"
               />
             </div>
 
+            {/* ৩. সিরিয়ালে দুপুর ও রাতের মিল */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                  দুপুরের মিল (Lunch)
+              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                  <span>☀️</span> দুপুরের মিল (Lunch)
                 </label>
                 <input
                   type="number"
@@ -149,9 +164,9 @@ export default function AddMeal() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                  রাতের মিল (Dinner)
+              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                  <span>🌙</span> রাতের মিল (Dinner)
                 </label>
                 <input
                   type="number"
@@ -163,19 +178,6 @@ export default function AddMeal() {
                   className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition"
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                তারিখ <span className="text-blue-400">*</span>
-              </label>
-              <input
-                type="date"
-                required
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition [color-scheme:dark]"
-              />
             </div>
 
             <button

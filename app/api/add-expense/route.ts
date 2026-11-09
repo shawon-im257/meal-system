@@ -3,7 +3,7 @@ import pool from '../../database/db';
 
 export async function POST(request: Request) {
   try {
-    const { name, amount, description, date } = await request.json();
+    const { name, amount, category, description, date } = await request.json();
 
     if (!name || !amount || !date) {
       return NextResponse.json(
@@ -19,7 +19,6 @@ export async function POST(request: Request) {
     if (users.length > 0) {
       userId = users[0].id;
     } else {
-      // মেম্বার না থাকলে স্বয়ংক্রিয়ভাবে তৈরি হবে
       const tempEmail = `${name.trim().replace(/\s+/g, '').toLowerCase()}${Date.now()}@test.com`;
       const [result]: any = await pool.query(
         'INSERT INTO Users (name, email) VALUES (?, ?)',
@@ -28,11 +27,19 @@ export async function POST(request: Request) {
       userId = result.insertId;
     }
 
-    // ২. Expenses টেবিলে খরচ এন্ট্রি করা
-    await pool.query(
-      'INSERT INTO Expenses (user_id, amount, description, expense_date) VALUES (?, ?, ?, ?)',
-      [userId, Number(amount), description || 'বাজার খরচ', date]
-    );
+    // ২. Expenses টেবিলে খরচ এন্ট্রি করা (ক্যাটাগরি সহ)
+    try {
+      await pool.query(
+        'INSERT INTO Expenses (user_id, amount, category, description, expense_date) VALUES (?, ?, ?, ?, ?)',
+        [userId, Number(amount), category || 'মুদি বাজার', description || 'বাজার খরচ', date]
+      );
+    } catch (colErr: any) {
+      // যদি ক্যাটাগরি কলাম না থাকে, তবে সাধারণ ইনসার্ট
+      await pool.query(
+        'INSERT INTO Expenses (user_id, amount, description, expense_date) VALUES (?, ?, ?, ?)',
+        [userId, Number(amount), description || 'বাজার খরচ', date]
+      );
+    }
 
     return NextResponse.json(
       { message: 'বাজার খরচ সফলভাবে যোগ করা হয়েছে!' },
@@ -46,4 +53,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

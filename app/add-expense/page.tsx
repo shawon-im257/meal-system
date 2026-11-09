@@ -3,17 +3,38 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+interface MemberOption {
+  id: number;
+  name: string;
+}
+
 export default function AddExpense() {
+  const [date, setDate] = useState('');
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('মুদি বাজার');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
+  const [members, setMembers] = useState<MemberOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     setDate(new Date().toISOString().split('T')[0]);
+
+    fetch('/api/members/list')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.members) setMembers(data.members);
+      })
+      .catch((err) => console.error(err));
   }, []);
+
+  const categories = [
+    { label: '🍚 চাল, তেল ও মুদি', value: 'মুদি বাজার' },
+    { label: '🐟 মাছ, মাংস ও ডিম', value: 'মাছ-মাংস' },
+    { label: '🥬 কাঁচাবাজার ও সবজি', value: 'সবজি ও তরকারি' },
+    { label: '⚡ গ্যাস, মসলা ও অন্যান্য', value: 'অন্যান্য খরচ' },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +46,9 @@ export default function AddExpense() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name,
+          name: name.trim(),
           amount: Number(amount),
+          category,
           description,
           date,
         }),
@@ -36,7 +58,6 @@ export default function AddExpense() {
 
       if (response.ok) {
         setMessage({ type: 'success', text: data.message || 'বাজার খরচ সফলভাবে যোগ করা হয়েছে!' });
-        setName('');
         setAmount('');
         setDescription('');
       } else {
@@ -70,7 +91,7 @@ export default function AddExpense() {
             বাজার খরচ এন্ট্রি করুন
           </h1>
           <p className="text-sm text-slate-400 mb-6">
-            কে বাজার করেছেন এবং মোট কত টাকা খরচ হয়েছে তা এখানে লিপিবদ্ধ করুন।
+            তারিখ নির্ধারণ করে বাজারকারীর নাম, খাত ও খরচের পরিমাণ লিপিবদ্ধ করুন।
           </p>
 
           {message && (
@@ -86,61 +107,105 @@ export default function AddExpense() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* ১. সবার উপরে তারিখ */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                বাজারকারীর নাম <span className="text-amber-400">*</span>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                <span>📅</span> খরচের তারিখ <span className="text-amber-400">*</span>
               </label>
+              <input
+                type="date"
+                required
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition [color-scheme:dark] text-sm"
+              />
+            </div>
+
+            {/* ২. বাজারকারীর নাম */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                <span>👤</span> বাজারকারীর নাম <span className="text-amber-400">*</span>
+              </label>
+
+              {members.length > 0 && (
+                <div className="mb-2">
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value) setName(e.target.value);
+                    }}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-800 border border-white/10 text-white focus:outline-none focus:border-amber-400 text-sm"
+                  >
+                    <option value="">-- তালিকা থেকে মেম্বার বেছে নিন --</option>
+                    {members.map((m) => (
+                      <option key={m.id} value={m.name}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="যেমন: রাহাত, তানভীর"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition"
+                placeholder="অথবা বাজারকারীর নাম লিখুন"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition text-sm"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                  খরচের পরিমাণ (৳) <span className="text-amber-400">*</span>
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="1"
-                  required
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="যেমন: ৫০০"
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                  তারিখ <span className="text-amber-400">*</span>
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition [color-scheme:dark]"
-                />
+            {/* ৩. খরচের ক্যাটাগরি */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                বাজারের ধরন / ক্যাটাগরি
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.value}
+                    type="button"
+                    onClick={() => setCategory(cat.value)}
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold border transition text-left ${
+                      category === cat.value
+                        ? 'bg-amber-500/20 border-amber-400 text-amber-200'
+                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
               </div>
             </div>
 
+            {/* ৪. খরচের পরিমাণ */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                <span>💰</span> খরচের পরিমাণ (৳) <span className="text-amber-400">*</span>
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="1"
+                required
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="যেমন: ৫০০"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition text-sm"
+              />
+            </div>
+
+            {/* ৫. বিবরণ */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1.5">
                 বাজারের বিবরণ (ঐচ্ছিক)
               </label>
               <textarea
-                rows={3}
+                rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="যেমন: চাল ৫ কেজি, রুই মাছ, তেল, পেঁয়াজ ইত্যাদি"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition resize-none"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition resize-none text-sm"
               />
             </div>
 
@@ -157,4 +222,3 @@ export default function AddExpense() {
     </div>
   );
 }
-

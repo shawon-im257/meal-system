@@ -23,6 +23,7 @@ CREATE TABLE Expenses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     amount DECIMAL(10,2) NOT NULL,
+    category VARCHAR(50) DEFAULT 'মুদি বাজার',
     description VARCHAR(255),
     expense_date DATE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE

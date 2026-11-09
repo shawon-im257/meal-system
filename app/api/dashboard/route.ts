@@ -22,12 +22,33 @@ export async function GET() {
     // ৪. মিল রেট হিসাব (খরচ ÷ মিল)
     const mealRate = totalMeals > 0 ? (totalExpenses / totalMeals).toFixed(2) : '0.00';
 
+    // ৫. ক্যাটাগরিভিত্তিক খরচের ব্রেকডাউন
+    let categoryBreakdown: any[] = [];
+    try {
+      const [catRows]: any = await pool.query(`
+        SELECT 
+          COALESCE(category, 'মুদি বাজার') AS category, 
+          COALESCE(SUM(amount), 0) AS total
+        FROM Expenses
+        GROUP BY category
+        ORDER BY total DESC
+      `);
+      categoryBreakdown = catRows.map((r: any) => ({
+        category: r.category,
+        total: Number(r.total),
+      }));
+    } catch (e) {
+      // যদি ক্যাটাগরি কলাম না থাকে
+      categoryBreakdown = [];
+    }
+
     return NextResponse.json(
       {
         totalMembers,
         totalMeals,
         totalExpenses,
         mealRate,
+        categoryBreakdown,
       },
       { status: 200 }
     );
@@ -39,4 +60,3 @@ export async function GET() {
     );
   }
 }
-

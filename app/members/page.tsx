@@ -75,12 +75,19 @@ export default function MembersPage() {
   };
 
   const handleDelete = async (id: number, memberName: string) => {
-    if (!confirm(`আপনি কি নিশ্চিত যে "${memberName}"-কে মেম্বার তালিকা থেকে মুছে ফেলতে চান? তার সমস্ত মিল ও খরচের তথ্য মুছে যাবে!`)) return;
+    const enteredPin = prompt('মেম্বার ডিলিট করার জন্য ম্যানেজার পিন দিন (ডিফল্ট: 1234):');
+    if (enteredPin !== '1234') {
+      alert('ভুল পিন! মেম্বার মোছা সম্ভব হয়নি।');
+      return;
+    }
+
+    if (!confirm(`আপনি কি নিশ্চিত যে "${memberName}"-কে মুছে ফেলতে চান? তার সমস্ত মিল ও খরচের তথ্য মুছে যাবে!`)) return;
 
     try {
       const res = await fetch(`/api/members?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         setMembers(members.filter((m) => m.id !== id));
+        alert('মেম্বার সফলভাবে মুছে ফেলা হয়েছে!');
       } else {
         alert('মুছতে সমস্যা হয়েছে!');
       }
@@ -192,15 +199,15 @@ export default function MembersPage() {
                 className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-400/40 backdrop-blur-md transition-all duration-200 hover:-translate-y-1 shadow-lg"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg flex items-center justify-center shadow-md shadow-blue-500/20">
+                  <Link href={`/members/${m.id}`} className="flex items-center gap-3 group">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition">
                       {m.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-base leading-tight">{m.name}</h3>
+                      <h3 className="font-bold text-white text-base leading-tight group-hover:text-blue-400 transition">{m.name}</h3>
                       <p className="text-xs text-slate-400 mt-0.5">{m.phone || 'ফোন নেই'}</p>
                     </div>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => handleDelete(m.id, m.name)}
                     title="মেম্বার মুছুন"
@@ -223,6 +230,15 @@ export default function MembersPage() {
                       ৳ {Number(m.total_deposit).toFixed(2)}
                     </span>
                   </div>
+                </div>
+
+                <div className="mt-3 pt-2">
+                  <Link
+                    href={`/members/${m.id}`}
+                    className="w-full block text-center py-1.5 rounded-lg bg-white/5 hover:bg-blue-600/30 text-blue-300 border border-white/10 hover:border-blue-500/30 text-xs font-semibold transition"
+                  >
+                    স্টেটমেন্ট ও রিপোর্ট দেখুন →
+                  </Link>
                 </div>
               </div>
             ))}
