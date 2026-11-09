@@ -39,8 +39,14 @@ export default function Navbar() {
             লগ
           </Link>
           <Link
+            href="/bulk-meal"
+            className="px-3 py-1.5 rounded-lg bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 hover:bg-indigo-600/50 transition-all duration-150 font-bold"
+          >
+            ⚡ বাল্ক মিল
+          </Link>
+          <Link
             href="/add-meal"
-            className="px-3 py-1.5 rounded-lg bg-blue-600/30 border border-blue-500/40 text-blue-300 hover:bg-blue-600/50 transition-all duration-150"
+            className="hidden sm:inline-block px-3 py-1.5 rounded-lg bg-blue-600/30 border border-blue-500/40 text-blue-300 hover:bg-blue-600/50 transition-all duration-150"
           >
             + মিল
           </Link>
