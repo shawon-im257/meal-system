@@ -58,8 +58,16 @@ export async function GET(request: Request) {
       const meals = Number(member.memberMeals || 0);
       const deposit = Number(member.totalDeposit || 0);
       const expense = Number(member.memberExpense || 0);
+      
+      // মেম্বারের মোট ক্রেডিট = (ম্যানেজারের কাছে ক্যাশ জমা + নিজের পকেট থেকে করা বাজার)
+      const totalContribution = deposit + expense;
+      
+      // মিলের খরচ = মিল সংখ্যা × মিল রেট
       const cost = Number((meals * mealRate).toFixed(2));
-      const balance = Number((deposit - cost).toFixed(2));
+      
+      // ব্যালেন্স = (মোট ক্রেডিট - মিলের খরচ)
+      // যদি পজিটিভ হয় -> ফেরত পাবে; যদি নেগেটিভ হয় -> বকেয়া দিতে হবে
+      const balance = Number((totalContribution - cost).toFixed(2));
 
       return {
         id: member.id,
@@ -68,6 +76,7 @@ export async function GET(request: Request) {
         meals,
         deposit,
         expense,
+        totalContribution,
         cost,
         balance,
       };

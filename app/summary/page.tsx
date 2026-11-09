@@ -10,6 +10,7 @@ interface MemberSummary {
   meals: number;
   deposit: number;
   expense: number;
+  totalContribution?: number;
   cost: number;
   balance: number;
 }
