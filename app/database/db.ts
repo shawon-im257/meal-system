@@ -9,7 +9,10 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
+  ssl:
+    process.env.DB_SSL === 'true' || process.env.DB_HOST?.includes('tidbcloud') || process.env.DB_HOST?.includes('aiven')
+      ? { rejectUnauthorized: false }
+      : undefined,
 });
 
 export default pool;

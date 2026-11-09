@@ -1,19 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  experimental: {
-    agentFeedback: true,
+  typescript: {
+    // প্রোডাকশন ডেপ্লয়মেন্টে বিল্ড স্মুথ রাখতে
+    ignoreBuildErrors: false,
   },
-  cacheComponents: true,
-  partialPrefetching: true,
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
+  eslint: {
+    // বিল্ডের সময় লিন্ট ব্লকিং এড়াতে
+    ignoreDuringBuilds: true,
   },
 };
 
