@@ -162,7 +162,8 @@ export default function SummaryPage() {
                     <th className="py-4 px-6">মেম্বার</th>
                     <th className="py-4 px-6 text-center">মিলের সংখ্যা</th>
                     <th className="py-4 px-6 text-right">বাজার খরচ (৳)</th>
-                    <th className="py-4 px-6 text-right">মোট জমা (৳)</th>
+                    <th className="py-4 px-6 text-right">ক্যাশ জমা (৳)</th>
+                    <th className="py-4 px-6 text-right">মোট ক্রেডিট (৳)</th>
                     <th className="py-4 px-6 text-right">মিলের খরচ (৳)</th>
                     <th className="py-4 px-6 text-right">ব্যালান্স অবস্থা</th>
                   </tr>
@@ -170,6 +171,7 @@ export default function SummaryPage() {
                 <tbody className="divide-y divide-white/5">
                   {data.members.map((m) => {
                     const isDue = m.balance < 0;
+                    const totalCred = (m.deposit || 0) + (m.expense || 0);
                     return (
                       <tr key={m.id} className="hover:bg-white/[0.03] transition">
                         <td className="py-4 px-6 font-semibold text-white flex items-center gap-3">
@@ -189,6 +191,9 @@ export default function SummaryPage() {
                         </td>
                         <td className="py-4 px-6 text-right font-mono text-emerald-400 font-semibold">
                           ৳ {m.deposit.toFixed(2)}
+                        </td>
+                        <td className="py-4 px-6 text-right font-mono text-blue-300 font-bold">
+                          ৳ {totalCred.toFixed(2)}
                         </td>
                         <td className="py-4 px-6 text-right font-mono text-slate-300">
                           ৳ {m.cost.toFixed(2)}
