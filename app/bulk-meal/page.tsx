@@ -32,10 +32,10 @@ export default function BulkMealPage() {
     fetch('/api/members/list')
       .then((res) => res.json())
       .then((data) => {
-        const memberList = Array.isArray(data) ? data : [];
+        const memberList = Array.isArray(data.members) ? data.members : (Array.isArray(data) ? data : []);
         setMembers(memberList);
         setMealRows(
-          memberList.map((m) => ({
+          memberList.map((m: Member) => ({
             user_id: m.id,
             name: m.name,
             lunch_count: 1,
